@@ -4,8 +4,7 @@ from flask import Flask, request
 
 app = Flask(__name__)
 
-# ❌ Mauvaise pratique / Secret en dur (Détecté par Gitleaks / SAST)
-AWS_SECRET_KEY = "AKIAIOSFODNN7EXAMPLEKEY"
+AWS_SECRET_KEY = os.getenv("AWS_SECRET_KEY")
 
 @app.route("/")
 def home():
@@ -14,10 +13,9 @@ def home():
 @app.route("/ping")
 def ping():
     host = request.args.get("host", "127.0.0.1")
-    # ❌ Mauvaise pratique / Command Injection (Détecté par Bandit / Semgrep)
-    output = subprocess.check_output(f"ping -c 1 {host}", shell=True)
+    # ✅ Exécution sécurisée sans shell=True
+    output = subprocess.check_output(["ping", "-c", "1", host])
     return output.decode("utf-8")
 
 if __name__ == "__main__":
-    # ❌ Mauvaise pratique : debug=True en production
-    app.run(host="0.0.0.0", port=5000, debug=True)
+    app.run(host="0.0.0.0", port=5000, debug=False)

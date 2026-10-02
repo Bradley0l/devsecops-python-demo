@@ -1,5 +1,4 @@
-# ❌ Mauvaise pratique : Utilisation d'une vieille image avec des vulnérabilités connues
-FROM python:3.9-slim
+FROM python:3.12-alpine
 
 WORKDIR /app
 
@@ -8,6 +7,8 @@ RUN pip install --no-cache-dir -r requirements.txt
 
 COPY . .
 
-# ❌ Mauvaise pratique : Exécution en tant que root
+RUN adduser -D appuser && chown -R appuser /app
+USER appuser
+
 EXPOSE 5000
 CMD ["python", "app/main.py"]
